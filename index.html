@@ -117,13 +117,13 @@
 
   /* Print styles */
   @media print{
-    body{background:#fff!important;color:#111!important;font-family:Georgia,serif}
+    html,body{height:auto!important;overflow:visible!important;background:#fff!important;color:#111!important;font-family:Georgia,serif}
     #header,#sidebar,#spell-list,#detail,#add-panel,#json-panel,#my-spellbook-toolbar,#toast{display:none!important}
-    #main{display:block!important;overflow:visible!important}
-    #my-spellbook-panel{display:block!important;padding:0!important;overflow:visible!important}
+    #main{display:block!important;overflow:visible!important;height:auto!important;flex:none!important}
+    #my-spellbook-panel{display:block!important;padding:0!important;overflow:visible!important;height:auto!important;flex:none!important}
     #my-spellbook-panel .panel-title{color:#111!important;font-size:22px;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:4px}
     #my-spellbook-subtitle{color:#555!important}
-    .sb-spell-card{background:#fff!important;border:1px solid #ccc!important;page-break-inside:avoid;margin-bottom:18px}
+    .sb-spell-card{background:#fff!important;border:1px solid #ccc!important;page-break-inside:avoid;break-inside:avoid;margin-bottom:18px}
     .sb-spell-card-name{color:#111!important}
     .sb-spell-card-sub{color:#444!important}
     .sb-spell-card-stats{background:#f5f5f5!important}
