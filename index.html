@@ -659,8 +659,8 @@ document.querySelectorAll('.filter-select,#filter-conc,#filter-ritual').forEach(
 document.getElementById('add-spell-btn').addEventListener('click',addSpell);
 document.getElementById('import-json-btn').addEventListener('click',importJson);
 document.getElementById('f-material').addEventListener('change',e=>{document.getElementById('f-matdesc-wrap').style.display=e.target.checked?'block':'none';});
-document.getElementById('spellbook-add-wrap').addEventListener('click',()=>{if(selectedSpell)toggleSpellbookEntry(selectedSpell.name);});
-document.getElementById('spellbook-add-cb').addEventListener('click',e=>e.stopPropagation());
+document.getElementById('spellbook-add-wrap').addEventListener('click',()=>{if(selectedSpell)document.getElementById('spellbook-add-cb').click();});
+document.getElementById('spellbook-add-cb').addEventListener('change',()=>{if(selectedSpell)toggleSpellbookEntry(selectedSpell.name);});
 document.getElementById('my-spellbook-back').addEventListener('click',()=>switchTab('browse'));
 document.getElementById('my-spellbook-print').addEventListener('click',()=>window.print());
 updateSpellbookBadge();
