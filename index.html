@@ -792,14 +792,14 @@ const CANTRIPS_3=[3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5];
 const CANTRIPS_4=[4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6];
 const CANTRIPS_0=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 const CLASS_TABLES={
-  Bard:{cantrips:CANTRIPS_2,prepared:FULL_PREPARED,slots:FULL_SLOTS},
-  Cleric:{cantrips:CANTRIPS_3,prepared:FULL_PREPARED,slots:FULL_SLOTS},
-  Druid:{cantrips:CANTRIPS_2,prepared:FULL_PREPARED,slots:FULL_SLOTS},
-  Paladin:{cantrips:CANTRIPS_0,prepared:HALF_PREPARED,slots:HALF_SLOTS},
-  Ranger:{cantrips:CANTRIPS_2,prepared:HALF_PREPARED,slots:HALF_SLOTS},
-  Sorcerer:{cantrips:CANTRIPS_4,prepared:FULL_PREPARED,slots:FULL_SLOTS},
-  Warlock:{cantrips:CANTRIPS_2,prepared:WARLOCK_PREPARED,slots:WARLOCK_SLOTS},
-  Wizard:{cantrips:CANTRIPS_3,prepared:FULL_PREPARED,slots:FULL_SLOTS}
+  Bard:{cantrips:CANTRIPS_2,prepared:FULL_PREPARED,slots:FULL_SLOTS,prepareFreq:'After a Long Rest'},
+  Cleric:{cantrips:CANTRIPS_3,prepared:FULL_PREPARED,slots:FULL_SLOTS,prepareFreq:'After a Long Rest'},
+  Druid:{cantrips:CANTRIPS_2,prepared:FULL_PREPARED,slots:FULL_SLOTS,prepareFreq:'After a Long Rest'},
+  Paladin:{cantrips:CANTRIPS_0,prepared:HALF_PREPARED,slots:HALF_SLOTS,prepareFreq:'After a Long Rest'},
+  Ranger:{cantrips:CANTRIPS_2,prepared:HALF_PREPARED,slots:HALF_SLOTS,prepareFreq:'After a Long Rest'},
+  Sorcerer:{cantrips:CANTRIPS_4,prepared:FULL_PREPARED,slots:FULL_SLOTS,prepareFreq:'After a Long Rest'},
+  Warlock:{cantrips:CANTRIPS_2,prepared:WARLOCK_PREPARED,slots:WARLOCK_SLOTS,prepareFreq:'After a Long Rest'},
+  Wizard:{cantrips:CANTRIPS_3,prepared:FULL_PREPARED,slots:FULL_SLOTS,prepareFreq:'After a Long Rest (from spellbook)'}
 };
 let prepareState={cls:'Wizard',level:1,cantrips:[],prepared:[]};
 try{const stored=localStorage.getItem('spellbook_prepare');if(stored){const p=JSON.parse(stored);prepareState={cls:p.cls||'Wizard',level:p.level||1,cantrips:Array.isArray(p.cantrips)?p.cantrips:[],prepared:Array.isArray(p.prepared)?p.prepared:[]};}}catch{}
@@ -818,6 +818,7 @@ function renderPrepare(){
     <div><div class="sum-key">Cantrips Known</div><div class="sum-val">${cantripCount}</div></div>
     <div><div class="sum-key">Prepared Spells</div><div class="sum-val">${preparedCount}</div></div>
     <div><div class="sum-key">Highest Slot Level</div><div class="sum-val">${maxLvl===0?'—':shortLevel(maxLvl)}</div></div>
+    <div><div class="sum-key">Prepare Spells</div><div class="sum-val">${tbl.prepareFreq}</div></div>
     <div><div class="sum-key">Source</div><div class="sum-val">SRD 5.2</div></div>`;
   // Cantrips
   document.getElementById('cantrip-counts').innerHTML=`<span class="total">${prepareState.cantrips.length} / ${cantripCount}</span>`;
