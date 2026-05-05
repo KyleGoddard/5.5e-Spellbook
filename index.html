@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="D&amp;D 2024 SRD 5.2 Spellbook — browse, filter, and manage your spell list">
 <title>✦ Spellbook — D&D 2024 SRD 5.2</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -119,14 +120,90 @@
   .sb-remove-btn{flex-shrink:0;padding:4px 10px;border-radius:4px;border:1px solid #3a2a4a;background:transparent;color:#8060a0;cursor:pointer;font-family:inherit;font-size:11px;transition:all 0.15s;white-space:nowrap}
   .sb-remove-btn:hover{background:#2a1a3a;color:#c090e0;border-color:#6040a0}
 
+  /* Prepare Spells tab */
+  .tab-btn.prepare-btn{border-color:#2a4a5a;color:#70c8e0}
+  .tab-btn.prepare-btn.active{background:#142a3a;color:#a0d8f0;border-color:#406680}
+
+  /* Prepare panel */
+  #prepare-panel{flex:1;overflow-y:auto;padding:26px 28px;display:none;flex-direction:column}
+  #prepare-panel.visible{display:flex}
+  #prepare-panel .panel-title{font-size:18px;color:#a0d8f0;margin-bottom:4px}
+  #prepare-subtitle{font-size:12px;color:#506878;margin-bottom:18px}
+  #prepare-toolbar{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}
+  #prepare-toolbar .field{margin-bottom:0;display:flex;flex-direction:column;gap:4px}
+  #prepare-toolbar select{background:#1c1a24;border:1px solid #2e2a3a;color:#c8c0b4;border-radius:5px;padding:6px 10px;font-family:inherit;font-size:13px;outline:none;min-width:140px}
+  #prepare-toolbar .toolbar-btn{padding:7px 14px;border-radius:5px;border:1px solid #2e2a3a;background:transparent;color:#776a5a;cursor:pointer;font-family:inherit;font-size:13px;transition:all 0.15s}
+  #prepare-toolbar .toolbar-btn:hover{background:#1c1a24;color:#a09080}
+  #prepare-toolbar .toolbar-btn.print-btn{border-color:#406680;color:#70c8e0}
+  #prepare-toolbar .toolbar-btn.print-btn:hover{background:#142a3a;color:#a0d8f0}
+  #prepare-summary{background:#0d1418;border:1px solid #1e2c34;border-radius:8px;padding:12px 18px;margin-bottom:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px 24px;max-width:760px}
+  #prepare-summary .sum-key{font-size:10px;color:#3e5868;text-transform:uppercase;letter-spacing:1px}
+  #prepare-summary .sum-val{color:#c8c0b4;margin-top:2px;font-size:13px}
+  .prep-section{margin-bottom:24px;max-width:760px}
+  .prep-section-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+  .prep-section-title{font-size:13px;color:#a0d8f0;text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
+  .prep-section-counts{font-size:11px;color:#506878;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .prep-section-counts .total{color:#a0d8f0;font-weight:700;font-size:12px}
+  .prep-section-counts .lvl-pip{padding:2px 8px;background:#142028;border:1px solid #1e2c34;border-radius:10px;font-size:11px}
+  .prep-section-counts .lvl-pip strong{color:#a0d8f0;font-weight:700}
+  .prep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+  .prep-slot{background:#13111a;border:1px dashed #2a3640;border-radius:6px;padding:10px 12px;cursor:pointer;transition:all 0.15s;min-height:62px;display:flex;flex-direction:column;justify-content:center;position:relative}
+  .prep-slot:hover{background:#1a1a26;border-color:#406680}
+  .prep-slot.empty{color:#3e5868;font-size:13px;text-align:center}
+  .prep-slot.filled{border-style:solid;border-color:#1e2c34}
+  .prep-slot.filled:hover{border-color:#406680}
+  .prep-slot-name{font-weight:600;font-size:13px;color:#d8d0c4;padding-right:18px}
+  .prep-slot-meta{font-size:11px;color:#506878;margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+  .prep-slot-clear{position:absolute;top:4px;right:4px;background:none;border:none;color:#3e5868;cursor:pointer;font-size:14px;line-height:1;padding:2px 6px;border-radius:3px;display:none}
+  .prep-slot.filled:hover .prep-slot-clear{display:block}
+  .prep-slot-clear:hover{color:#e08080;background:#2a1818}
+  .slot-table{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin-top:6px}
+  .slot-cell{background:#13111a;border:1px solid #1e2c34;border-radius:5px;padding:8px 4px;text-align:center}
+  .slot-cell.empty-slots{opacity:0.3}
+  .slot-cell-lvl{font-size:9px;color:#3e5868;text-transform:uppercase;letter-spacing:1px}
+  .slot-cell-count{font-size:16px;color:#a0d8f0;font-weight:700;margin-top:2px}
+
+  /* Picker modal */
+  #picker-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center}
+  #picker-modal.visible{display:flex}
+  #picker-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.75)}
+  #picker-content{position:relative;background:#16141c;border:1px solid #2e2a3a;border-radius:8px;width:560px;max-width:92vw;max-height:80vh;display:flex;flex-direction:column}
+  #picker-header{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2e2a3a;gap:12px}
+  #picker-title{font-size:14px;color:#a0d8f0}
+  #picker-close{background:none;border:none;color:#776a5a;cursor:pointer;font-size:22px;line-height:1;padding:0 4px}
+  #picker-close:hover{color:#c8c0b4}
+  #picker-search{margin:12px 18px 6px;padding:8px 12px;background:#1c1a24;border:1px solid #2e2a3a;border-radius:5px;color:#e8e4dc;font-family:inherit;font-size:14px;outline:none}
+  #picker-list{flex:1;overflow-y:auto;padding:6px 10px 12px}
+  .picker-item{padding:9px 12px;cursor:pointer;border-radius:5px;transition:background 0.1s}
+  .picker-item:hover{background:#1c1a24}
+  .picker-name{font-weight:600;font-size:14px;color:#d8d0c4}
+  .picker-meta{font-size:11px;color:#665e4e;margin-top:2px;display:flex;gap:8px}
+  #picker-empty{padding:24px;color:#554e40;text-align:center;font-size:14px}
+
   /* Print styles */
   @media print{
     html,body{height:auto!important;overflow:visible!important;background:#fff!important;color:#111!important;font-family:Georgia,serif}
-    #header,#sidebar,#spell-list,#detail,#add-panel,#json-panel,#my-spellbook-toolbar,#toast{display:none!important}
+    #header,#sidebar,#spell-list,#detail,#add-panel,#json-panel,#my-spellbook-toolbar,#prepare-toolbar,#picker-modal,#toast{display:none!important}
     #main{display:block!important;overflow:visible!important;height:auto!important;flex:none!important}
-    #my-spellbook-panel{display:block!important;padding:0!important;overflow:visible!important;height:auto!important;flex:none!important}
-    #my-spellbook-panel .panel-title{color:#111!important;font-size:22px;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:4px}
-    #my-spellbook-subtitle{color:#555!important}
+    #my-spellbook-panel,#prepare-panel{display:none!important}
+    #my-spellbook-panel.visible,#prepare-panel.visible{display:block!important;padding:0!important;overflow:visible!important;height:auto!important;flex:none!important}
+    #my-spellbook-panel .panel-title,#prepare-panel .panel-title{color:#111!important;font-size:22px;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:4px}
+    #my-spellbook-subtitle,#prepare-subtitle{color:#555!important}
+    #prepare-summary{background:#f5f5f5!important;border:1px solid #ccc!important}
+    #prepare-summary .sum-key{color:#666!important}
+    #prepare-summary .sum-val{color:#222!important}
+    .prep-section-title{color:#111!important}
+    .prep-section-counts{color:#444!important}
+    .prep-section-counts .total,.prep-section-counts .lvl-pip strong{color:#111!important}
+    .prep-section-counts .lvl-pip{background:#fff!important;border:1px solid #ccc!important}
+    .prep-slot{background:#fff!important;border:1px solid #ccc!important;page-break-inside:avoid;break-inside:avoid}
+    .prep-slot.empty{display:none!important}
+    .prep-slot-name{color:#111!important}
+    .prep-slot-meta{color:#444!important}
+    .prep-slot-clear{display:none!important}
+    .slot-cell{background:#f5f5f5!important;border:1px solid #ccc!important}
+    .slot-cell-lvl{color:#666!important}
+    .slot-cell-count{color:#222!important}
     .sb-spell-card{background:#fff!important;border:1px solid #ccc!important;page-break-inside:avoid;break-inside:avoid;margin-bottom:18px}
     .sb-spell-card-name{color:#111!important}
     .sb-spell-card-sub{color:#444!important}
@@ -153,6 +230,7 @@
   <div id="tabs">
     <button class="tab-btn active" data-tab="browse">Browse</button>
     <button class="tab-btn my-spellbook-btn" data-tab="my-spellbook">My Spellbook<span class="sb-count" id="sb-count-badge" style="display:none">0</span></button>
+    <button class="tab-btn prepare-btn" data-tab="prepare">⚡ Prepare</button>
     <button class="tab-btn" data-tab="add">+ Add Spell</button>
     <button class="tab-btn" data-tab="json">Import JSON</button>
   </div>
@@ -278,6 +356,57 @@
       <button id="my-spellbook-print">🖨 Print Spellbook</button>
     </div>
     <div id="my-spellbook-list"></div>
+  </div>
+  <div id="prepare-panel">
+    <div class="panel-title">⚡ Prepare Spells</div>
+    <div id="prepare-subtitle">Plan your daily prepared spell list per the 2024 SRD 5.2 rules</div>
+    <div id="prepare-toolbar">
+      <div class="field"><div class="field-label">Class</div>
+        <select id="prepare-class">
+          <option value="Bard">Bard</option><option value="Cleric">Cleric</option>
+          <option value="Druid">Druid</option><option value="Paladin">Paladin</option>
+          <option value="Ranger">Ranger</option><option value="Sorcerer">Sorcerer</option>
+          <option value="Warlock">Warlock</option><option value="Wizard">Wizard</option>
+        </select>
+      </div>
+      <div class="field"><div class="field-label">Character Level</div>
+        <select id="prepare-level"></select>
+      </div>
+      <button class="toolbar-btn" id="prepare-clear">Clear All</button>
+      <button class="toolbar-btn print-btn" id="prepare-print">🖨 Print</button>
+    </div>
+    <div id="prepare-summary"></div>
+    <div class="prep-section">
+      <div class="prep-section-header">
+        <div class="prep-section-title">Cantrips Known</div>
+        <div class="prep-section-counts" id="cantrip-counts"></div>
+      </div>
+      <div class="prep-grid" id="cantrip-grid"></div>
+    </div>
+    <div class="prep-section">
+      <div class="prep-section-header">
+        <div class="prep-section-title">Prepared Spells</div>
+        <div class="prep-section-counts" id="prepared-counts"></div>
+      </div>
+      <div class="prep-grid" id="prepared-grid"></div>
+    </div>
+    <div class="prep-section">
+      <div class="prep-section-header">
+        <div class="prep-section-title">Spell Slots (per long rest)</div>
+      </div>
+      <div class="slot-table" id="slot-table"></div>
+    </div>
+  </div>
+</div>
+<div id="picker-modal">
+  <div id="picker-backdrop"></div>
+  <div id="picker-content">
+    <div id="picker-header">
+      <div id="picker-title"></div>
+      <button id="picker-close" title="Close">×</button>
+    </div>
+    <input id="picker-search" type="text" placeholder="Search spells…" autocomplete="off">
+    <div id="picker-list"></div>
   </div>
 </div>
 <div id="toast"></div>
@@ -632,6 +761,138 @@ let allSpells=[...SPELLS,...customSpells];
 let selectedSpell=null;
 let listening=false;
 let recognition=null;
+
+/* 2024 SRD 5.2.1 spellcasting tables: cantrips known, prepared spells, and spell slots per character level (1..20). Verify against the SRD PDF if any number looks off. */
+const FULL_SLOTS=[
+[2,0,0,0,0,0,0,0,0],[3,0,0,0,0,0,0,0,0],[4,2,0,0,0,0,0,0,0],[4,3,0,0,0,0,0,0,0],
+[4,3,2,0,0,0,0,0,0],[4,3,3,0,0,0,0,0,0],[4,3,3,1,0,0,0,0,0],[4,3,3,2,0,0,0,0,0],
+[4,3,3,3,1,0,0,0,0],[4,3,3,3,2,0,0,0,0],[4,3,3,3,2,1,0,0,0],[4,3,3,3,2,1,0,0,0],
+[4,3,3,3,2,1,1,0,0],[4,3,3,3,2,1,1,0,0],[4,3,3,3,2,1,1,1,0],[4,3,3,3,2,1,1,1,0],
+[4,3,3,3,2,1,1,1,1],[4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]];
+const HALF_SLOTS=[
+[2,0,0,0,0,0,0,0,0],[2,0,0,0,0,0,0,0,0],[3,0,0,0,0,0,0,0,0],[3,0,0,0,0,0,0,0,0],
+[4,2,0,0,0,0,0,0,0],[4,2,0,0,0,0,0,0,0],[4,3,0,0,0,0,0,0,0],[4,3,0,0,0,0,0,0,0],
+[4,3,2,0,0,0,0,0,0],[4,3,2,0,0,0,0,0,0],[4,3,3,0,0,0,0,0,0],[4,3,3,0,0,0,0,0,0],
+[4,3,3,1,0,0,0,0,0],[4,3,3,1,0,0,0,0,0],[4,3,3,2,0,0,0,0,0],[4,3,3,2,0,0,0,0,0],
+[4,3,3,3,1,0,0,0,0],[4,3,3,3,1,0,0,0,0],[4,3,3,3,2,0,0,0,0],[4,3,3,3,2,0,0,0,0]];
+const WARLOCK_SLOTS=[
+[1,0,0,0,0,0,0,0,0],[2,0,0,0,0,0,0,0,0],[0,2,0,0,0,0,0,0,0],[0,2,0,0,0,0,0,0,0],
+[0,0,2,0,0,0,0,0,0],[0,0,2,0,0,0,0,0,0],[0,0,0,2,0,0,0,0,0],[0,0,0,2,0,0,0,0,0],
+[0,0,0,0,2,0,0,0,0],[0,0,0,0,2,0,0,0,0],[0,0,0,0,3,0,0,0,0],[0,0,0,0,3,0,0,0,0],
+[0,0,0,0,3,0,0,0,0],[0,0,0,0,3,0,0,0,0],[0,0,0,0,3,0,0,0,0],[0,0,0,0,3,0,0,0,0],
+[0,0,0,0,4,0,0,0,0],[0,0,0,0,4,0,0,0,0],[0,0,0,0,4,0,0,0,0],[0,0,0,0,4,0,0,0,0]];
+const FULL_PREPARED=[4,5,6,7,9,10,11,12,14,15,16,16,17,18,19,21,22,22,23,24];
+const HALF_PREPARED=[2,3,4,5,6,6,7,7,9,9,10,10,11,11,12,12,14,14,15,15];
+const WARLOCK_PREPARED=[2,3,4,5,6,7,8,9,10,10,11,11,12,12,13,13,14,14,15,15];
+const CANTRIPS_2=[2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4];
+const CANTRIPS_3=[3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5];
+const CANTRIPS_4=[4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6];
+const CANTRIPS_0=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const CLASS_TABLES={
+  Bard:{cantrips:CANTRIPS_2,prepared:FULL_PREPARED,slots:FULL_SLOTS},
+  Cleric:{cantrips:CANTRIPS_3,prepared:FULL_PREPARED,slots:FULL_SLOTS},
+  Druid:{cantrips:CANTRIPS_2,prepared:FULL_PREPARED,slots:FULL_SLOTS},
+  Paladin:{cantrips:CANTRIPS_0,prepared:HALF_PREPARED,slots:HALF_SLOTS},
+  Ranger:{cantrips:CANTRIPS_2,prepared:HALF_PREPARED,slots:HALF_SLOTS},
+  Sorcerer:{cantrips:CANTRIPS_4,prepared:FULL_PREPARED,slots:FULL_SLOTS},
+  Warlock:{cantrips:CANTRIPS_2,prepared:WARLOCK_PREPARED,slots:WARLOCK_SLOTS},
+  Wizard:{cantrips:CANTRIPS_3,prepared:FULL_PREPARED,slots:FULL_SLOTS}
+};
+let prepareState={cls:'Wizard',level:1,cantrips:[],prepared:[]};
+try{const stored=localStorage.getItem('spellbook_prepare');if(stored){const p=JSON.parse(stored);prepareState={cls:p.cls||'Wizard',level:p.level||1,cantrips:Array.isArray(p.cantrips)?p.cantrips:[],prepared:Array.isArray(p.prepared)?p.prepared:[]};}}catch{}
+let pickerCtx=null;
+function savePrepare(){localStorage.setItem('spellbook_prepare',JSON.stringify(prepareState));}
+function maxSlotLevel(cls,lvl){const slots=CLASS_TABLES[cls].slots[lvl-1];for(let i=8;i>=0;i--)if(slots[i]>0)return i+1;return 0;}
+function shortLevel(n){return n===0?'Cantrip':`${n}${['th','st','nd','rd','th','th','th','th','th','th'][n]}`;}
+function renderPrepare(){
+  const cls=prepareState.cls,lvl=prepareState.level,tbl=CLASS_TABLES[cls];
+  const cantripCount=tbl.cantrips[lvl-1],preparedCount=tbl.prepared[lvl-1],slots=tbl.slots[lvl-1],maxLvl=maxSlotLevel(cls,lvl);
+  if(prepareState.cantrips.length>cantripCount)prepareState.cantrips=prepareState.cantrips.slice(0,cantripCount);
+  if(prepareState.prepared.length>preparedCount)prepareState.prepared=prepareState.prepared.slice(0,preparedCount);
+  document.getElementById('prepare-summary').innerHTML=`
+    <div><div class="sum-key">Class</div><div class="sum-val">${cls}</div></div>
+    <div><div class="sum-key">Level</div><div class="sum-val">${lvl}</div></div>
+    <div><div class="sum-key">Cantrips Known</div><div class="sum-val">${cantripCount}</div></div>
+    <div><div class="sum-key">Prepared Spells</div><div class="sum-val">${preparedCount}</div></div>
+    <div><div class="sum-key">Highest Slot Level</div><div class="sum-val">${maxLvl===0?'—':shortLevel(maxLvl)}</div></div>
+    <div><div class="sum-key">Source</div><div class="sum-val">SRD 5.2</div></div>`;
+  // Cantrips
+  document.getElementById('cantrip-counts').innerHTML=`<span class="total">${prepareState.cantrips.length} / ${cantripCount}</span>`;
+  const cgrid=document.getElementById('cantrip-grid');cgrid.innerHTML='';
+  if(cantripCount===0){cgrid.innerHTML='<div style="color:#506878;font-size:13px;font-style:italic">This class has no cantrips at this level.</div>';}
+  else{for(let i=0;i<cantripCount;i++)cgrid.appendChild(buildSlot('cantrips',i,prepareState.cantrips[i],'Choose cantrip'));}
+  // Prepared (with per-level pip counts)
+  const lvlCounts={};for(let i=1;i<=Math.max(maxLvl,1);i++)lvlCounts[i]=0;
+  prepareState.prepared.forEach(n=>{const sp=allSpells.find(s=>s.name===n);if(sp&&sp.level>0)lvlCounts[sp.level]=(lvlCounts[sp.level]||0)+1;});
+  let pipsHtml=`<span class="total">${prepareState.prepared.length} / ${preparedCount}</span>`;
+  for(let i=1;i<=maxLvl;i++)pipsHtml+=`<span class="lvl-pip">L${i}: <strong>${lvlCounts[i]||0}</strong></span>`;
+  document.getElementById('prepared-counts').innerHTML=pipsHtml;
+  const pgrid=document.getElementById('prepared-grid');pgrid.innerHTML='';
+  if(preparedCount===0||maxLvl===0){pgrid.innerHTML='<div style="color:#506878;font-size:13px;font-style:italic">No prepared spells at this level.</div>';}
+  else{for(let i=0;i<preparedCount;i++)pgrid.appendChild(buildSlot('prepared',i,prepareState.prepared[i],'Choose spell'));}
+  // Slot table
+  const stbl=document.getElementById('slot-table');stbl.innerHTML='';
+  for(let i=0;i<9;i++){const cell=document.createElement('div');cell.className='slot-cell'+(slots[i]===0?' empty-slots':'');cell.innerHTML=`<div class="slot-cell-lvl">${shortLevel(i+1)}</div><div class="slot-cell-count">${slots[i]||'—'}</div>`;stbl.appendChild(cell);}
+}
+function buildSlot(bucket,index,name,emptyText){
+  const slot=document.createElement('div');
+  slot.className='prep-slot '+(name?'filled':'empty');
+  if(name){
+    const sp=allSpells.find(s=>s.name===name);
+    const sc=sp?(SCHOOL_COLORS[sp.school]||'#888'):'#888';
+    const meta=sp?`<span style="color:${sc}">${sp.school}</span><span>${shortLevel(sp.level)}</span>${sp.concentration?'<span class="tag-c">C</span>':''}${sp.ritual?'<span class="tag-r">R</span>':''}`:'<span style="color:#a06060">spell not found</span>';
+    slot.innerHTML=`<div class="prep-slot-name">${name}</div><div class="prep-slot-meta">${meta}</div><button class="prep-slot-clear" title="Clear">×</button>`;
+    slot.querySelector('.prep-slot-clear').onclick=(e)=>{e.stopPropagation();prepareState[bucket].splice(index,1);savePrepare();renderPrepare();};
+  } else {
+    slot.textContent='+ '+emptyText;
+  }
+  slot.onclick=()=>openPicker(bucket,index);
+  return slot;
+}
+function openPicker(bucket,index){
+  const cls=prepareState.cls,lvl=prepareState.level;
+  let title,filter;
+  if(bucket==='cantrips'){
+    title=`Choose a Cantrip · ${cls}`;
+    filter=s=>s.level===0&&s.classes?.includes(cls)&&!prepareState.cantrips.includes(s.name);
+  } else {
+    const maxLvl=maxSlotLevel(cls,lvl);
+    if(maxLvl===0){showToast(cls+' has no spell slots at level '+lvl);return;}
+    title=`Choose a Prepared Spell · ${cls} (1st – ${shortLevel(maxLvl)})`;
+    filter=s=>s.level>=1&&s.level<=maxLvl&&s.classes?.includes(cls)&&!prepareState.prepared.includes(s.name);
+  }
+  pickerCtx={bucket,index,filter};
+  document.getElementById('picker-title').textContent=title;
+  document.getElementById('picker-search').value='';
+  renderPicker();
+  document.getElementById('picker-modal').classList.add('visible');
+  setTimeout(()=>document.getElementById('picker-search').focus(),50);
+}
+function renderPicker(){
+  if(!pickerCtx)return;
+  const q=document.getElementById('picker-search').value.toLowerCase();
+  const filtered=allSpells.filter(s=>pickerCtx.filter(s)&&(!q||s.name.toLowerCase().includes(q))).sort((a,b)=>a.level-b.level||a.name.localeCompare(b.name));
+  const list=document.getElementById('picker-list');list.innerHTML='';
+  if(filtered.length===0){list.innerHTML='<div id="picker-empty">No spells match.</div>';return;}
+  filtered.forEach(s=>{
+    const sc=SCHOOL_COLORS[s.school]||'#888';
+    const item=document.createElement('div');item.className='picker-item';
+    item.innerHTML=`<div class="picker-name">${s.name}</div><div class="picker-meta"><span style="color:${sc}">${s.school}</span><span>${shortLevel(s.level)}</span>${s.concentration?'<span class="tag-c">C</span>':''}${s.ritual?'<span class="tag-r">R</span>':''}</div>`;
+    item.onclick=()=>pickSpell(s.name);
+    list.appendChild(item);
+  });
+}
+function pickSpell(name){
+  if(!pickerCtx)return;
+  const{bucket,index}=pickerCtx;
+  prepareState[bucket][index]=name;
+  savePrepare();closePicker();renderPrepare();
+}
+function closePicker(){document.getElementById('picker-modal').classList.remove('visible');pickerCtx=null;}
+function clearAllPrepared(){if(!confirm('Clear all cantrips and prepared spells for '+prepareState.cls+' '+prepareState.level+'?'))return;prepareState.cantrips=[];prepareState.prepared=[];savePrepare();renderPrepare();}
+function changePrepareClass(){const v=document.getElementById('prepare-class').value;if(v===prepareState.cls)return;prepareState.cls=v;prepareState.cantrips=[];prepareState.prepared=[];savePrepare();renderPrepare();}
+function changePrepareLevel(){prepareState.level=parseInt(document.getElementById('prepare-level').value)||1;savePrepare();renderPrepare();}
+function initPrepare(){const sel=document.getElementById('prepare-level');for(let i=1;i<=20;i++){const o=document.createElement('option');o.value=i;o.textContent=i;sel.appendChild(o);}document.getElementById('prepare-class').value=prepareState.cls;document.getElementById('prepare-level').value=prepareState.level;}
 function levelLabel(n){if(n===0)return'Cantrip';const s=['th','st','nd','rd','th','th','th','th','th','th'][n];return`${n}${s} level`;}
 function compStr(c){return[c.verbal&&'V',c.somatic&&'S',c.material&&'M'].filter(Boolean).join(', ')||'—';}
 function saveCustom(){localStorage.setItem('spellbook_custom',JSON.stringify(customSpells));}
@@ -645,7 +906,7 @@ const cb=document.getElementById('spellbook-add-cb');const wrap=document.getElem
 function toggleSpellbookEntry(spellName){if(mySpellbook.has(spellName)){mySpellbook.delete(spellName);}else{mySpellbook.add(spellName);}saveMySpellbook();updateSpellbookBadge();renderList();
 if(selectedSpell?.name===spellName){const inSB=mySpellbook.has(spellName);const cb=document.getElementById('spellbook-add-cb');const wrap=document.getElementById('spellbook-add-wrap');cb.checked=inSB;wrap.classList.toggle('checked',inSB);document.getElementById('spellbook-add-label').textContent=inSB?'Added to my Spellbook ✓':'Add to my Spellbook';}}
 function renderMySpellbook(){const spells=allSpells.filter(s=>mySpellbook.has(s.name)).sort((a,b)=>a.level-b.level||a.name.localeCompare(b.name));const sub=document.getElementById('my-spellbook-subtitle');const list=document.getElementById('my-spellbook-list');sub.textContent=spells.length===0?'No spells added yet':spells.length+' spell'+(spells.length!==1?'s':'')+' saved';list.innerHTML='';if(spells.length===0){list.innerHTML=`<div id="my-spellbook-empty"><div class="empty-icon">📖</div>Your spellbook is empty.<br>Browse spells and check<br>"Add to my Spellbook" to add them here.</div>`;return;}spells.forEach(spell=>{const sc=SCHOOL_COLORS[spell.school]||'#888';const card=document.createElement('div');card.className='sb-spell-card';card.innerHTML=`<div class="sb-spell-card-header"><div class="sb-spell-card-name">${spell.name}</div><button class="sb-remove-btn" data-name="${spell.name}">Remove</button></div><div class="sb-spell-card-sub" style="color:${sc}">${levelLabel(spell.level)} · ${spell.school}${spell.ritual?' · Ritual':''}</div><div class="sb-spell-card-stats"><div><div class="sb-card-key">Casting Time</div><div class="sb-card-val">${spell.castingTime||'—'}</div></div><div><div class="sb-card-key">Range</div><div class="sb-card-val">${spell.range||'—'}</div></div><div><div class="sb-card-key">Duration</div><div class="sb-card-val">${spell.duration||'—'}</div></div><div><div class="sb-card-key">Components</div><div class="sb-card-val">${compStr(spell.components)}</div></div><div><div class="sb-card-key">Concentration</div><div class="sb-card-val">${spell.concentration?'Yes':'No'}</div></div><div><div class="sb-card-key">Classes</div><div class="sb-card-val">${spell.classes?.join(', ')||'—'}</div></div></div>${spell.components?.material&&spell.components?.materialDesc?`<div style="font-size:12px;color:#665e4e;font-style:italic;margin-bottom:10px">Material: ${spell.components.materialDesc}</div>`:''}<div class="sb-spell-card-desc">${spell.description||''}</div>${spell.higherLevels?`<div class="sb-spell-card-higher"><div class="sb-spell-card-higher-title">At Higher Levels</div><div style="margin-top:4px">${spell.higherLevels}</div></div>`:''}`;list.appendChild(card);});list.querySelectorAll('.sb-remove-btn').forEach(btn=>{btn.addEventListener('click',()=>{const name=btn.dataset.name;mySpellbook.delete(name);saveMySpellbook();updateSpellbookBadge();renderMySpellbook();renderList();showToast('"'+name+'" removed from your Spellbook');});});}
-function switchTab(tab){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));const browseEls=[document.getElementById('sidebar'),document.getElementById('spell-list'),document.getElementById('detail')];const addPanel=document.getElementById('add-panel');const jsonPanel=document.getElementById('json-panel');const myPanel=document.getElementById('my-spellbook-panel');if(tab==='browse'){browseEls.forEach(el=>el.style.display='');addPanel.classList.remove('visible');jsonPanel.classList.remove('visible');myPanel.classList.remove('visible');}else{browseEls.forEach(el=>el.style.display='none');addPanel.classList.remove('visible');jsonPanel.classList.remove('visible');myPanel.classList.remove('visible');if(tab==='add'){addPanel.classList.add('visible');}else if(tab==='json'){jsonPanel.classList.add('visible');}else if(tab==='my-spellbook'){renderMySpellbook();myPanel.classList.add('visible');}}}
+function switchTab(tab){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));const browseEls=[document.getElementById('sidebar'),document.getElementById('spell-list'),document.getElementById('detail')];const addPanel=document.getElementById('add-panel');const jsonPanel=document.getElementById('json-panel');const myPanel=document.getElementById('my-spellbook-panel');const prepPanel=document.getElementById('prepare-panel');if(tab==='browse'){browseEls.forEach(el=>el.style.display='');addPanel.classList.remove('visible');jsonPanel.classList.remove('visible');myPanel.classList.remove('visible');prepPanel.classList.remove('visible');}else{browseEls.forEach(el=>el.style.display='none');addPanel.classList.remove('visible');jsonPanel.classList.remove('visible');myPanel.classList.remove('visible');prepPanel.classList.remove('visible');if(tab==='add'){addPanel.classList.add('visible');}else if(tab==='json'){jsonPanel.classList.add('visible');}else if(tab==='my-spellbook'){renderMySpellbook();myPanel.classList.add('visible');}else if(tab==='prepare'){renderPrepare();prepPanel.classList.add('visible');}}}
 function toggleVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){showToast('Voice search not supported in this browser');return;}if(listening){recognition?.stop();return;}recognition=new SR();recognition.lang='en-US';recognition.interimResults=false;recognition.onstart=()=>{listening=true;document.getElementById('voice-btn').classList.add('listening');};recognition.onend=()=>{listening=false;document.getElementById('voice-btn').classList.remove('listening');};recognition.onresult=(e)=>{document.getElementById('search-input').value=e.results[0][0].transcript;updateClearBtn();renderList();switchTab('browse');};recognition.onerror=()=>{listening=false;document.getElementById('voice-btn').classList.remove('listening');showToast('Voice recognition failed');};recognition.start();}
 function updateClearBtn(){document.getElementById('clear-btn').style.display=document.getElementById('search-input').value?'block':'none';}
 function addSpell(){const name=document.getElementById('f-name').value.trim();if(!name){showToast('Spell name is required');return;}const spell={name,level:parseInt(document.getElementById('f-level').value)||0,school:document.getElementById('f-school').value,castingTime:document.getElementById('f-ct').value.trim(),range:document.getElementById('f-range').value.trim(),components:{verbal:document.getElementById('f-verbal').checked,somatic:document.getElementById('f-somatic').checked,material:document.getElementById('f-material').checked,materialDesc:document.getElementById('f-matdesc').value.trim()},duration:document.getElementById('f-dur').value.trim(),concentration:document.getElementById('f-conc').checked,ritual:document.getElementById('f-ritual').checked,classes:document.getElementById('f-classes').value.split(',').map(c=>c.trim()).filter(Boolean),description:document.getElementById('f-desc').value.trim(),higherLevels:document.getElementById('f-higher').value.trim(),source:document.getElementById('f-source').value.trim()||'Custom'};customSpells.push(spell);allSpells=[...SPELLS,...customSpells];saveCustom();['f-name','f-ct','f-range','f-dur','f-classes','f-desc','f-higher','f-matdesc'].forEach(id=>document.getElementById(id).value='');document.getElementById('f-level').value='0';['f-verbal','f-somatic','f-material','f-conc','f-ritual'].forEach(id=>document.getElementById(id).checked=false);document.getElementById('f-matdesc-wrap').style.display='none';showToast('✓ "'+name+'" added');switchTab('browse');renderList();}
@@ -663,6 +924,15 @@ document.getElementById('spellbook-add-wrap').addEventListener('click',()=>{if(s
 document.getElementById('spellbook-add-cb').addEventListener('change',()=>{if(selectedSpell)toggleSpellbookEntry(selectedSpell.name);});
 document.getElementById('my-spellbook-back').addEventListener('click',()=>switchTab('browse'));
 document.getElementById('my-spellbook-print').addEventListener('click',()=>window.print());
+document.getElementById('prepare-class').addEventListener('change',changePrepareClass);
+document.getElementById('prepare-level').addEventListener('change',changePrepareLevel);
+document.getElementById('prepare-clear').addEventListener('click',clearAllPrepared);
+document.getElementById('prepare-print').addEventListener('click',()=>window.print());
+document.getElementById('picker-close').addEventListener('click',closePicker);
+document.getElementById('picker-backdrop').addEventListener('click',closePicker);
+document.getElementById('picker-search').addEventListener('input',renderPicker);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('picker-modal').classList.contains('visible'))closePicker();});
+initPrepare();
 updateSpellbookBadge();
 renderList();
 
