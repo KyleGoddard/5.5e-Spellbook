@@ -136,6 +136,8 @@
   #prepare-toolbar .toolbar-btn:hover{background:#1c1a24;color:#a09080}
   #prepare-toolbar .toolbar-btn.print-btn{border-color:#406680;color:#70c8e0}
   #prepare-toolbar .toolbar-btn.print-btn:hover{background:#142a3a;color:#a0d8f0}
+  #prepare-toolbar #prepare-add-to-sb{border-color:#4a3a6a;color:#b090e0}
+  #prepare-toolbar #prepare-add-to-sb:hover{background:#1e1630;color:#d4aaff}
   #prepare-summary{background:#0d1418;border:1px solid #1e2c34;border-radius:8px;padding:12px 18px;margin-bottom:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px 24px;max-width:760px}
   #prepare-summary .sum-key{font-size:10px;color:#3e5868;text-transform:uppercase;letter-spacing:1px}
   #prepare-summary .sum-val{color:#c8c0b4;margin-top:2px;font-size:13px}
@@ -372,6 +374,7 @@
       <div class="field"><div class="field-label">Character Level</div>
         <select id="prepare-level"></select>
       </div>
+      <button class="toolbar-btn" id="prepare-add-to-sb">📖 Add All to My Spellbook</button>
       <button class="toolbar-btn" id="prepare-clear">Clear All</button>
       <button class="toolbar-btn print-btn" id="prepare-print">🖨 Print</button>
     </div>
@@ -890,6 +893,7 @@ function pickSpell(name){
 }
 function closePicker(){document.getElementById('picker-modal').classList.remove('visible');pickerCtx=null;}
 function clearAllPrepared(){if(!confirm('Clear all cantrips and prepared spells for '+prepareState.cls+' '+prepareState.level+'?'))return;prepareState.cantrips=[];prepareState.prepared=[];savePrepare();renderPrepare();}
+function addPreparedToSpellbook(){const all=[...prepareState.cantrips,...prepareState.prepared].filter(Boolean);if(all.length===0){showToast('No spells selected to add');return;}let added=0;all.forEach(n=>{if(!mySpellbook.has(n)){mySpellbook.add(n);added++;}});saveMySpellbook();updateSpellbookBadge();renderList();showToast(added>0?'✓ Added '+added+' spell'+(added!==1?'s':'')+' to My Spellbook'+(added<all.length?' ('+(all.length-added)+' already saved)':''):'All '+all.length+' spell'+(all.length!==1?'s':'')+' already in My Spellbook');}
 function changePrepareClass(){const v=document.getElementById('prepare-class').value;if(v===prepareState.cls)return;prepareState.cls=v;prepareState.cantrips=[];prepareState.prepared=[];savePrepare();renderPrepare();}
 function changePrepareLevel(){prepareState.level=parseInt(document.getElementById('prepare-level').value)||1;savePrepare();renderPrepare();}
 function initPrepare(){const sel=document.getElementById('prepare-level');for(let i=1;i<=20;i++){const o=document.createElement('option');o.value=i;o.textContent=i;sel.appendChild(o);}document.getElementById('prepare-class').value=prepareState.cls;document.getElementById('prepare-level').value=prepareState.level;}
@@ -927,6 +931,7 @@ document.getElementById('my-spellbook-print').addEventListener('click',()=>windo
 document.getElementById('prepare-class').addEventListener('change',changePrepareClass);
 document.getElementById('prepare-level').addEventListener('change',changePrepareLevel);
 document.getElementById('prepare-clear').addEventListener('click',clearAllPrepared);
+document.getElementById('prepare-add-to-sb').addEventListener('click',addPreparedToSpellbook);
 document.getElementById('prepare-print').addEventListener('click',()=>window.print());
 document.getElementById('picker-close').addEventListener('click',closePicker);
 document.getElementById('picker-backdrop').addEventListener('click',closePicker);
